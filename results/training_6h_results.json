@@ -1,0 +1,122 @@
+{
+  "horizon": "6h",
+  "threshold_class": "M",
+  "n_train": 385807,
+  "n_test": 96452,
+  "event_rate_train": 0.1020847211170352,
+  "event_rate_test": 0.3035706880106167,
+  "optimal_threshold": 0.6142889261245728,
+  "metrics": {
+    "auc": 0.8768501332644457,
+    "pr_auc": 0.7965657239296512,
+    "brier": 0.15124650299549103,
+    "brier_climatological": 0.21141552539137748,
+    "optimal_threshold": 0.6142889261245728,
+    "tss": 0.5586299029585252,
+    "hss": 0.5431328434406194,
+    "pod": 0.7233265027322404,
+    "pofd": 0.16469659977371523,
+    "csi": 0.5249733534937907,
+    "n_samples": 96452,
+    "n_positive_true": 29280,
+    "n_positive_pred": 32242,
+    "event_rate": 0.3035706880106167
+  },
+  "calibration": {
+    "brier_score": 0.15124650299549103,
+    "brier_random": 0.21141552539137748,
+    "brier_skill_score": 0.28460077510627524,
+    "expected_calibration_error": 0.12474281963473337,
+    "max_calibration_error": 0.32119157316645197,
+    "reliability_correlation": 0.9461039383671092,
+    "calibration_intercept": -3.4927856837849616,
+    "calibration_slope": 5.041033942568224,
+    "base_rate": 0.3035706880106167
+  },
+  "feature_importance": [
+    {
+      "feature": "hard_mean_5m",
+      "importance": 0.2137429267168045
+    },
+    {
+      "feature": "soft_mean_5m",
+      "importance": 0.144817054271698
+    },
+    {
+      "feature": "soft",
+      "importance": 0.07653971016407013
+    },
+    {
+      "feature": "neupert_proxy",
+      "importance": 0.06351082026958466
+    },
+    {
+      "feature": "hard_std_5m",
+      "importance": 0.0622931569814682
+    },
+    {
+      "feature": "soft_std_1m",
+      "importance": 0.06067252904176712
+    },
+    {
+      "feature": "hard",
+      "importance": 0.058612339198589325
+    },
+    {
+      "feature": "soft_log",
+      "importance": 0.053176622837781906
+    },
+    {
+      "feature": "hard_log",
+      "importance": 0.05236266925930977
+    },
+    {
+      "feature": "hard_std_1m",
+      "importance": 0.04392138496041298
+    },
+    {
+      "feature": "hard_soft_ratio",
+      "importance": 0.03785751760005951
+    },
+    {
+      "feature": "soft_hard_corr",
+      "importance": 0.028959600254893303
+    },
+    {
+      "feature": "ddsoft",
+      "importance": 0.02672896720468998
+    },
+    {
+      "feature": "soft_std_5m",
+      "importance": 0.026714446023106575
+    },
+    {
+      "feature": "dhard",
+      "importance": 0.015101077035069466
+    },
+    {
+      "feature": "spectral_hardening",
+      "importance": 0.012849636375904083
+    },
+    {
+      "feature": "dsoft",
+      "importance": 0.01263901125639677
+    },
+    {
+      "feature": "dhard_soft_ratio",
+      "importance": 0.009500493295490742
+    },
+    {
+      "feature": "hard_mean_1m",
+      "importance": 0.0
+    },
+    {
+      "feature": "soft_mean_1m",
+      "importance": 0.0
+    },
+    {
+      "feature": "xcorr",
+      "importance": 0.0
+    }
+  ]
+}
