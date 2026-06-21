@@ -308,7 +308,8 @@ with tab1:
 
         # Real-time mini chart (last 24h)
         st.markdown('<p class="section-header">Last 24 Hours</p>', unsafe_allow_html=True)
-        last_24h = goes_valid.last("24H")
+        cutoff = goes_valid.index.max() - pd.Timedelta(hours=24)
+        last_24h = goes_valid[goes_valid.index >= cutoff]
         if len(last_24h) > 0:
             fig = go.Figure()
             fig.add_trace(go.Scatter(
@@ -420,13 +421,20 @@ with tab3:
 
         with col2:
             # Feature importance
-            imp = best.get("feature_importance", {})
+            imp = best.get("feature_importance", [])
             if imp:
-                sorted_imp = sorted(imp.items(), key=lambda x: x[1], reverse=True)
+                if isinstance(imp, dict):
+                    sorted_imp = sorted(imp.items(), key=lambda x: x[1], reverse=True)
+                    names = [x[0] for x in sorted_imp]
+                    vals = [x[1] for x in sorted_imp]
+                else:
+                    sorted_imp = sorted(imp, key=lambda x: x.get("importance", 0), reverse=True)
+                    names = [x["feature"] for x in sorted_imp]
+                    vals = [x["importance"] for x in sorted_imp]
                 fig = go.Figure()
                 fig.add_trace(go.Bar(
-                    y=[x[0] for x in sorted_imp][::-1],
-                    x=[x[1] for x in sorted_imp][::-1],
+                    y=names[::-1][:15],
+                    x=vals[::-1][:15],
                     orientation="h",
                     marker_color="#a78bfa"
                 ))
