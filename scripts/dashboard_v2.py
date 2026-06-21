@@ -253,10 +253,14 @@ with tab1:
     st.markdown('<p class="section-header">Real-Time Flare Monitoring</p>', unsafe_allow_html=True)
 
     if goes is not None:
-        latest = goes.iloc[-1]
+        goes_valid = goes.dropna(subset=["xrs_b_flux", "xrs_a_flux"])
+        if len(goes_valid) == 0:
+            st.warning("GOES data contains only NaN values.")
+            st.stop()
+        latest = goes_valid.iloc[-1]
         flux_b = float(latest["xrs_b_flux"])
         flux_a = float(latest["xrs_a_flux"])
-        last_time = goes.index[-1]
+        last_time = goes_valid.index[-1]
 
         # Determine alert level
         if flux_b >= FLUX_THRESHOLDS["X"]:
@@ -304,7 +308,7 @@ with tab1:
 
         # Real-time mini chart (last 24h)
         st.markdown('<p class="section-header">Last 24 Hours</p>', unsafe_allow_html=True)
-        last_24h = goes.last("24H")
+        last_24h = goes_valid.last("24H")
         if len(last_24h) > 0:
             fig = go.Figure()
             fig.add_trace(go.Scatter(

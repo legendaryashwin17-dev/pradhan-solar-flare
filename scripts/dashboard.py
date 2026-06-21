@@ -170,10 +170,17 @@ class PRADHANDashboard:
     
     def _load_model(self):
         """Load trained model or train new one."""
-        model_path = Path("models/pradhan_forecaster_model.joblib")
+        # Try best model first, then fall back to older models
+        best_model_path = Path("models/pradhan_best_model.joblib")
+        legacy_model_path = Path("models/pradhan_forecaster_model.joblib")
         
-        if model_path.exists():
-            print("\n[Demo] Loading trained model...")
+        if best_model_path.exists():
+            print("\n[Demo] Loading best trained model...")
+            self.model = FlareForecaster()
+            self.model.load("models/pradhan_best")
+            print("       Configuration: 6h horizon, C-class, weight=75")
+        elif legacy_model_path.exists():
+            print("\n[Demo] Loading legacy model...")
             self.model = FlareForecaster()
             self.model.load("models/pradhan_forecaster")
         else:

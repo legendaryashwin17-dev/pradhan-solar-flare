@@ -107,11 +107,36 @@ def load_solexs_lc(lc_path: str) -> pd.DataFrame:
         data = hdul[1].data
         header = hdul[1].header
 
-        # SoLEXS light curves have columns: time, rate, error
+        # SoLEXS light curves have columns: TIME, COUNTS (or Time, Rate, Error)
         # Time is in seconds since epoch (usually 2000-01-01T00:00:00)
-        time_col = data['Time'] if 'Time' in data.dtype.names else data.columns[0]
-        rate_col = data['Rate'] if 'Rate' in data.dtype.names else data.columns[1]
-        error_col = data['Error'] if 'Error' in data.dtype.names else data.columns[2]
+        col_names = [name.upper() for name in data.dtype.names]
+        
+        # Find time column
+        if 'TIME' in col_names:
+            time_col = data['TIME']
+        elif 'Time' in data.dtype.names:
+            time_col = data['Time']
+        else:
+            time_col = data.columns[0]
+        
+        # Find rate/counts column
+        if 'RATE' in col_names:
+            rate_col = data['RATE']
+        elif 'COUNTS' in col_names:
+            rate_col = data['COUNTS']
+        elif 'Rate' in data.dtype.names:
+            rate_col = data['Rate']
+        else:
+            rate_col = data.columns[1]
+        
+        # Find error column (optional)
+        error_col = None
+        if 'ERROR' in col_names:
+            error_col = data['ERROR']
+        elif 'Error' in data.dtype.names:
+            error_col = data['Error']
+        elif len(data.dtype.names) > 2:
+            error_col = data.columns[2]
 
         # Try to get epoch from header
         if 'MJDREFI' in header and 'MJDREFF' in header:

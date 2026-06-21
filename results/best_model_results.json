@@ -1,53 +1,129 @@
 {
-  "config": "1h C-class",
-  "horizon": "1h",
-  "threshold_class": "C",
+  "config": {
+    "horizon": "6h",
+    "threshold_class": "C",
+    "scale_weight": 75,
+    "n_features": 21
+  },
+  "data": {
+    "n_train": 385807,
+    "n_test": 96452,
+    "event_rate_train": 0.7124261612671621,
+    "event_rate_test": 0.7018309625513208,
+    "train_period": "2003-01-01 00:04:00 to 2003-10-08 13:10:00",
+    "test_period": "2003-10-08 13:11:00 to 2003-12-15 05:19:00"
+  },
   "metrics": {
-    "auc": 0.9609908026678368,
-    "pr_auc": 0.9651185708453324,
-    "brier": 0.08413302153348923,
-    "brier_climatological": 0.24887066653923795,
-    "optimal_threshold": 0.6995261907577515,
-    "tss": 0.792480498871217,
-    "hss": 0.7969164624819192,
-    "pod": 0.848043612337373,
-    "pofd": 0.055563113466156056,
-    "csi": 0.7973555629947114,
-    "n_samples": 1102035,
-    "n_positive_true": 513983,
-    "n_positive_pred": 468554,
-    "event_rate": 0.4663944430077085
+    "auc": 0.9400336594887245,
+    "pr_auc": 0.9764817769129366,
+    "brier": 0.1557016223669052,
+    "brier_climatological": 0.20926426255560734,
+    "optimal_threshold": 0.9958227872848511,
+    "tss": 0.7533655999635053,
+    "hss": 0.6694829608504702,
+    "pod": 0.7965520807173563,
+    "pofd": 0.04318648075385097,
+    "csi": 0.7822006237760208,
+    "n_samples": 96452,
+    "n_positive_true": 67693,
+    "n_positive_pred": 55163,
+    "event_rate": 0.7018309625513208
   },
-  "optimal_threshold": 0.6995261907577515,
-  "data_info": {
-    "n_train": 4408140,
-    "n_test": 1102035,
-    "train_event_rate": 0.2930526253703376,
-    "test_event_rate": 0.4663944430077085,
-    "train_period": "2003-01-01 00:04:00 to 2014-04-25 12:40:00",
-    "test_period": "2014-04-25 12:41:00 to 2024-06-15 23:59:00"
+  "calibration": {
+    "brier_score": 0.1557016223669052,
+    "brier_random": 0.20926426255560734,
+    "brier_skill_score": 0.2559569394916107,
+    "expected_calibration_error": 0.1539410885449454,
+    "max_calibration_error": 0.4775429045567747,
+    "reliability_correlation": 0.8748232099516321,
+    "calibration_intercept": -3.7738492861093564,
+    "calibration_slope": 5.416685546799725,
+    "base_rate": 0.7018309625513208
   },
-  "feature_importance": {
-    "hard_mean_5m": 0.8157564401626587,
-    "hard": 0.10108159482479095,
-    "hard_log": 0.014280756935477257,
-    "dhard": 0.013376711867749691,
-    "soft_mean_5m": 0.010204724036157131,
-    "hard_std_5m": 0.005592536646872759,
-    "soft_log": 0.00518076354637742,
-    "neupert_proxy": 0.005125245079398155,
-    "soft": 0.004454859532415867,
-    "ddsoft": 0.004321145359426737,
-    "soft_hard_corr": 0.003927262034267187,
-    "hard_soft_ratio": 0.003615985857322812,
-    "dsoft": 0.003547106171026826,
-    "dhard_soft_ratio": 0.002417666604742408,
-    "hard_std_1m": 0.0024147816002368927,
-    "soft_std_1m": 0.0018538180738687515,
-    "spectral_hardening": 0.0014418537029996514,
-    "soft_std_5m": 0.0014067305019125342,
-    "hard_mean_1m": 0.0,
-    "soft_mean_1m": 0.0,
-    "xcorr": 0.0
-  }
+  "feature_importance": [
+    {
+      "feature": "hard_log",
+      "importance": 0.2686842679977417
+    },
+    {
+      "feature": "hard_mean_5m",
+      "importance": 0.2506422996520996
+    },
+    {
+      "feature": "hard",
+      "importance": 0.08401411771774292
+    },
+    {
+      "feature": "soft_log",
+      "importance": 0.06573456525802612
+    },
+    {
+      "feature": "hard_std_5m",
+      "importance": 0.06316661089658737
+    },
+    {
+      "feature": "soft",
+      "importance": 0.037873703986406326
+    },
+    {
+      "feature": "neupert_proxy",
+      "importance": 0.03694123774766922
+    },
+    {
+      "feature": "soft_mean_5m",
+      "importance": 0.03328200802206993
+    },
+    {
+      "feature": "soft_std_5m",
+      "importance": 0.031158942729234695
+    },
+    {
+      "feature": "hard_soft_ratio",
+      "importance": 0.02772337570786476
+    },
+    {
+      "feature": "soft_hard_corr",
+      "importance": 0.02202466130256653
+    },
+    {
+      "feature": "ddsoft",
+      "importance": 0.01720622554421425
+    },
+    {
+      "feature": "hard_std_1m",
+      "importance": 0.012432618997991085
+    },
+    {
+      "feature": "soft_std_1m",
+      "importance": 0.012293262407183647
+    },
+    {
+      "feature": "dsoft",
+      "importance": 0.011730183847248554
+    },
+    {
+      "feature": "dhard",
+      "importance": 0.009229082614183426
+    },
+    {
+      "feature": "spectral_hardening",
+      "importance": 0.008448137901723385
+    },
+    {
+      "feature": "dhard_soft_ratio",
+      "importance": 0.00741463853046298
+    },
+    {
+      "feature": "hard_mean_1m",
+      "importance": 0.0
+    },
+    {
+      "feature": "soft_mean_1m",
+      "importance": 0.0
+    },
+    {
+      "feature": "xcorr",
+      "importance": 0.0
+    }
+  ]
 }
