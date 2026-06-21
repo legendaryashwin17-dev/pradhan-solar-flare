@@ -1,0 +1,13 @@
+{
+  "total_samples": 300000,
+  "predicted_flares": 299457,
+  "prediction_rate": 0.99819,
+  "mean_probability": 0.9994019865989685,
+  "max_probability": 0.9999909400939941,
+  "high_prob_days": 41,
+  "time_range": {
+    "start": "2026-05-09 14:20:00",
+    "end": "2026-06-18 23:59:30"
+  },
+  "note": "GOES-trained model applied to SoLEXS data. SoLEXS measures 2-22 keV (similar to GOES XRS-B 1-8 \u00c5). Cross-instrument validation tests if GOES-learned patterns transfer."
+}

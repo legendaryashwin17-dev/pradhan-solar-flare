@@ -1,0 +1,28 @@
+{
+  "method": "xgboost_gain_importance",
+  "feature_importance": {
+    "hard_log": 0.268684,
+    "hard_mean_5m": 0.250642,
+    "hard": 0.084014,
+    "soft_log": 0.065735,
+    "hard_std_5m": 0.063167,
+    "soft": 0.037874,
+    "neupert_proxy": 0.036941,
+    "soft_mean_5m": 0.033282,
+    "soft_std_5m": 0.031159,
+    "hard_soft_ratio": 0.027723,
+    "soft_hard_corr": 0.022025,
+    "ddsoft": 0.017206,
+    "hard_std_1m": 0.012433,
+    "soft_std_1m": 0.012293,
+    "dsoft": 0.01173,
+    "dhard": 0.009229,
+    "spectral_hardening": 0.008448,
+    "dhard_soft_ratio": 0.007415,
+    "soft_mean_1m": 0.0,
+    "hard_mean_1m": 0.0,
+    "xcorr": 0.0
+  },
+  "threshold": 0.9958227872848511,
+  "model_type": "XGBClassifier"
+}
