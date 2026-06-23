@@ -1,0 +1,10 @@
+.git
+.gitignore
+__pycache__
+*.pyc
+data/
+outputs/
+models/*.joblib
+results/*.json
+*.md
+LICENSE
