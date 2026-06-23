@@ -241,7 +241,9 @@ with tab2:
                                          name="Quality", line=dict(color="#9ca3af", width=0.5)),
                               row=2, col=1)
             yaxis = dict(type="log", title="Flux (W/m\u00b2)") if log_scale else dict(title="Flux (W/m\u00b2)")
-            fig.update_layout(**PL, height=480, yaxis=yaxis, yaxis2_title="Quality", xaxis2_title="Time")
+            fig.update_layout(**PL, height=480, yaxis=yaxis,
+                              yaxis2=dict(title="Quality", gridcolor="#f0f0f0"),
+                              xaxis2=dict(title="Time"))
             st.plotly_chart(fig, use_container_width=True)
 
         # Flux distribution
