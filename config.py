@@ -22,6 +22,11 @@ GOES_NETCDF_DIR = GOES_PARQUET_DIR  # Same directory, .nc files alongside .parqu
 SOLEXS_ZIP_DIR = Path(r"C:\Users\Admin\Downloads")
 SOLEXS_EXTRACT_DIR = DATA_DIR / "pradan_solexs" / "extracted"
 
+# HEL1OS data source (external zips, extracted to data/pradan_hel1os/)
+HEL1OS_ZIP_DIR = Path(r"C:\Users\Admin\Downloads")
+HEL1OS_EXTRACT_DIR = DATA_DIR / "pradan_hel1os"
+HEL1OS_PARQUET = DATA_DIR / "pradan_hel1os" / "hel1os_combined.parquet"
+
 # ── GOES Configuration ─────────────────────────────────────────────────
 GOES_COLUMNS = {
     "xrsa": "xrs_a_flux",      # XRS-A (soft channel, 0.05-0.4 nm)

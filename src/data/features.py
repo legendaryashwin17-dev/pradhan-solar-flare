@@ -168,40 +168,21 @@ def compute_features(
 
 
 def _rolling_std(arr: np.ndarray, window: int) -> np.ndarray:
-    """Compute rolling standard deviation efficiently."""
-    n = len(arr)
-    result = np.full(n, np.nan)
-    cumsum = np.cumsum(arr)
-    cumsum2 = np.cumsum(arr ** 2)
-
-    for i in range(window - 1, n):
-        s = cumsum[i] - (cumsum[i - window] if i >= window else 0)
-        s2 = cumsum2[i] - (cumsum2[i - window] if i >= window else 0)
-        mean = s / window
-        var = s2 / window - mean ** 2
-        result[i] = np.sqrt(max(var, 0))
-
-    return result
+    """Compute rolling standard deviation using pandas (C-backed, fast)."""
+    if window <= 1:
+        # For window=1, std is always 0 (single sample)
+        return np.zeros_like(arr, dtype=float)
+    s = pd.Series(arr)
+    return s.rolling(window=window, min_periods=window).std(ddof=0).values
 
 
 def _rolling_corr(
     arr1: np.ndarray, arr2: np.ndarray, window: int
 ) -> np.ndarray:
-    """Compute rolling Pearson correlation."""
-    n = len(arr1)
-    result = np.full(n, np.nan)
-
-    for i in range(window - 1, n):
-        start = i - window + 1
-        w1 = arr1[start:i + 1]
-        w2 = arr2[start:i + 1]
-
-        if np.std(w1) < 1e-15 or np.std(w2) < 1e-15:
-            continue
-
-        result[i] = np.corrcoef(w1, w2)[0, 1]
-
-    return result
+    """Compute rolling Pearson correlation using pandas (C-backed, fast)."""
+    s1 = pd.Series(arr1)
+    s2 = pd.Series(arr2)
+    return s1.rolling(window=window, min_periods=window).corr(s2).values
 
 
 if __name__ == "__main__":

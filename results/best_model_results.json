@@ -1,129 +1,49 @@
 {
-  "config": {
-    "horizon": "6h",
-    "threshold_class": "C",
-    "scale_weight": 75,
-    "n_features": 21
-  },
-  "data": {
-    "n_train": 385807,
-    "n_test": 96452,
-    "event_rate_train": 0.7124261612671621,
-    "event_rate_test": 0.7018309625513208,
-    "train_period": "2003-01-01 00:04:00 to 2003-10-08 13:10:00",
-    "test_period": "2003-10-08 13:11:00 to 2003-12-15 05:19:00"
-  },
+  "config": "1h C-class (2003-2017)",
   "metrics": {
-    "auc": 0.9400336594887245,
-    "pr_auc": 0.9764817769129366,
-    "brier": 0.1557016223669052,
-    "brier_climatological": 0.20926426255560734,
-    "optimal_threshold": 0.9958227872848511,
-    "tss": 0.7533655999635053,
-    "hss": 0.6694829608504702,
-    "pod": 0.7965520807173563,
-    "pofd": 0.04318648075385097,
-    "csi": 0.7822006237760208,
-    "n_samples": 96452,
-    "n_positive_true": 67693,
-    "n_positive_pred": 55163,
-    "event_rate": 0.7018309625513208
+    "auc": 0.9570067552133763,
+    "pr_auc": 0.9157600510830225,
+    "brier": 0.06298162043094635,
+    "brier_climatological": 0.18132920485060317,
+    "optimal_threshold": 0.36492645740509033,
+    "tss": 0.7655887570493968,
+    "hss": 0.7248886576056257,
+    "pod": 0.8602179767380328,
+    "pofd": 0.09462921968863598,
+    "csi": 0.660153262033573,
+    "n_samples": 1159497,
+    "n_positive_true": 275901,
+    "n_positive_pred": 320949,
+    "event_rate": 0.23794886920794103
   },
-  "calibration": {
-    "brier_score": 0.1557016223669052,
-    "brier_random": 0.20926426255560734,
-    "brier_skill_score": 0.2559569394916107,
-    "expected_calibration_error": 0.1539410885449454,
-    "max_calibration_error": 0.4775429045567747,
-    "reliability_correlation": 0.8748232099516321,
-    "calibration_intercept": -3.7738492861093564,
-    "calibration_slope": 5.416685546799725,
-    "base_rate": 0.7018309625513208
-  },
-  "feature_importance": [
-    {
-      "feature": "hard_log",
-      "importance": 0.2686842679977417
-    },
-    {
-      "feature": "hard_mean_5m",
-      "importance": 0.2506422996520996
-    },
-    {
-      "feature": "hard",
-      "importance": 0.08401411771774292
-    },
-    {
-      "feature": "soft_log",
-      "importance": 0.06573456525802612
-    },
-    {
-      "feature": "hard_std_5m",
-      "importance": 0.06316661089658737
-    },
-    {
-      "feature": "soft",
-      "importance": 0.037873703986406326
-    },
-    {
-      "feature": "neupert_proxy",
-      "importance": 0.03694123774766922
-    },
-    {
-      "feature": "soft_mean_5m",
-      "importance": 0.03328200802206993
-    },
-    {
-      "feature": "soft_std_5m",
-      "importance": 0.031158942729234695
-    },
-    {
-      "feature": "hard_soft_ratio",
-      "importance": 0.02772337570786476
-    },
-    {
-      "feature": "soft_hard_corr",
-      "importance": 0.02202466130256653
-    },
-    {
-      "feature": "ddsoft",
-      "importance": 0.01720622554421425
-    },
-    {
-      "feature": "hard_std_1m",
-      "importance": 0.012432618997991085
-    },
-    {
-      "feature": "soft_std_1m",
-      "importance": 0.012293262407183647
-    },
-    {
-      "feature": "dsoft",
-      "importance": 0.011730183847248554
-    },
-    {
-      "feature": "dhard",
-      "importance": 0.009229082614183426
-    },
-    {
-      "feature": "spectral_hardening",
-      "importance": 0.008448137901723385
-    },
-    {
-      "feature": "dhard_soft_ratio",
-      "importance": 0.00741463853046298
-    },
-    {
-      "feature": "hard_mean_1m",
-      "importance": 0.0
-    },
-    {
-      "feature": "soft_mean_1m",
-      "importance": 0.0
-    },
-    {
-      "feature": "xcorr",
-      "importance": 0.0
-    }
-  ]
+  "optimal_threshold": 0.36492645740509033,
+  "n_train": 4637988,
+  "n_test": 1159497,
+  "train_event_rate": 0.3335429069674178,
+  "test_event_rate": 0.23794886920794103,
+  "train_period": "2003-01-01 00:04:00 to 2015-01-22 21:41:00",
+  "test_period": "2015-01-22 21:42:00 to 2017-12-31 23:59:00",
+  "feature_importance": {
+    "hard_mean_5m": 0.7444548010826111,
+    "hard_log": 0.1424638032913208,
+    "hard": 0.05256735160946846,
+    "hard_std_5m": 0.014345243573188782,
+    "dhard": 0.011637534014880657,
+    "soft_mean_5m": 0.008796609938144684,
+    "neupert_proxy": 0.0035451073199510574,
+    "soft_log": 0.0033855305518954992,
+    "soft": 0.0033065336756408215,
+    "ddsoft": 0.0031799094285815954,
+    "dsoft": 0.002904394408687949,
+    "soft_hard_corr": 0.002669583773240447,
+    "hard_soft_ratio": 0.0021750731393694878,
+    "soft_std_5m": 0.0017331208800897002,
+    "dhard_soft_ratio": 0.0016031713457778096,
+    "spectral_hardening": 0.0012323056580498815,
+    "hard_mean_1m": 0.0,
+    "hard_std_1m": 0.0,
+    "soft_std_1m": 0.0,
+    "soft_mean_1m": 0.0,
+    "xcorr": 0.0
+  }
 }

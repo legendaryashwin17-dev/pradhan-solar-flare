@@ -241,10 +241,13 @@ def load_solexs_directory(
 
 def load_hel1os_directory(
     data_dir: str,
-    resample_to: str = '1s'
+    resample_to: str = '10s'
 ) -> pd.DataFrame:
     """
     Load all HEL1OS light curves from extracted directory structure.
+
+    HEL1OS FITS columns: MJD, ISOT (ISO timestamp), CTR (count rate), STAT_ERR
+    We use CdTe detector (15-150 keV) for hard X-ray channel.
 
     Expected structure:
         data_dir/
@@ -260,12 +263,12 @@ def load_hel1os_directory(
     data_dir : str
         Root directory containing extracted HEL1OS files
     resample_to : str
-        Resample cadence
+        Resample cadence (default '10s' for manageable size)
 
     Returns
     -------
     pd.DataFrame
-        Combined DataFrame with rate, error, livetime
+        Combined DataFrame with rate, error columns
     """
     from astropy.io import fits
 
@@ -274,7 +277,7 @@ def load_hel1os_directory(
     if not data_path.exists():
         raise FileNotFoundError(f"Data directory not found: {data_dir}")
 
-    # Find all HEL1OS FITS files
+    # Find all HEL1OS FITS files (prefer CdTe for hard X-ray)
     fits_files = sorted(data_path.glob("**/lightcurve_cdte1.fits"))
 
     if not fits_files:
@@ -286,50 +289,87 @@ def load_hel1os_directory(
     print(f"Found {len(fits_files)} HEL1OS light curve files")
 
     dfs = []
+    loaded = 0
+    errors = 0
+
     for fits_file in fits_files:
         try:
             with fits.open(fits_file) as hdul:
                 data = hdul[1].data
-                header = hdul[1].header
+                col_names = [c.upper() for c in data.dtype.names]
 
-                time_col = data['Time'] if 'Time' in data.dtype.names else data['time']
-                rate_col = data['Rate'] if 'Rate' in data.dtype.names else data['rate']
-
-                # Build times
-                if 'MJDREFI' in header:
-                    mjd_ref = header['MJDREFI'] + header.get('MJDREFF', 0)
+                # HEL1OS actual columns: ISOT, MJD, CTR, STAT_ERR
+                # Parse ISOT string timestamps
+                if 'ISOT' in col_names:
+                    time_strs = [s.decode() if isinstance(s, bytes) else str(s)
+                                 for s in data['ISOT']]
+                    times_pd = pd.DatetimeIndex(time_strs)
+                elif 'MJD' in col_names:
                     from astropy.time import Time
-                    t_ref = Time(mjd_ref, format='mjd')
-                    times = t_ref + time_col * (1.0 / 86400.0)
-                    times_pd = pd.DatetimeIndex(times.to_datetime())
+                    mjd_vals = data['MJD'].astype(float)
+                    times_pd = pd.DatetimeIndex(
+                        Time(mjd_vals, format='mjd').to_datetime()
+                    )
                 else:
-                    t_start = pd.Timestamp(header.get('DATE-OBS', '2024-01-01'))
-                    times_pd = t_start + pd.to_timedelta(time_col, unit='s')
+                    print(f"  Warning: No time column in {fits_file.name}, skipping")
+                    errors += 1
+                    continue
+
+                # Count rate column
+                if 'CTR' in col_names:
+                    rate = data['CTR'].astype(float)
+                elif 'RATE' in col_names:
+                    rate = data['RATE'].astype(float)
+                elif 'COUNTS' in col_names:
+                    rate = data['COUNTS'].astype(float)
+                else:
+                    print(f"  Warning: No rate column in {fits_file.name}, skipping")
+                    errors += 1
+                    continue
+
+                # Error column
+                if 'STAT_ERR' in col_names:
+                    error = data['STAT_ERR'].astype(float)
+                elif 'ERROR' in col_names:
+                    error = data['ERROR'].astype(float)
+                else:
+                    error = np.sqrt(np.abs(rate))
 
                 df = pd.DataFrame({
-                    'rate': rate_col.astype(float),
-                    'error': (data['Error'] if 'Error' in data.dtype.names
-                              else data.get('error', np.nan)).astype(float),
+                    'rate': rate,
+                    'error': error,
                 }, index=times_pd)
 
-                df['livetime'] = header.get('LIVETIME', np.nan)
+                df.index.name = 'time'
                 df['source_file'] = fits_file.name
 
             dfs.append(df)
+            loaded += 1
         except Exception as e:
-            print(f"  Warning: Could not load {fits_file.name}: {e}")
+            errors += 1
+            if errors <= 10:
+                print(f"  Warning: Could not load {fits_file.name}: {e}")
             continue
 
     if not dfs:
         raise ValueError("No HEL1OS light curves could be loaded")
 
+    print(f"Loaded {loaded} files ({errors} errors)")
+
     combined = pd.concat(dfs, ignore_index=False)
     combined = combined.sort_index()
     combined = combined[~combined.index.duplicated(keep='first')]
 
-    if resample_to:
-        combined = combined.resample(resample_to).mean()
+    print(f"Combined: {len(combined):,} data points")
+    if len(combined) > 0:
+        print(f"Time range: {combined.index.min()} to {combined.index.max()}")
+
+    # Resample to reduce size
+    if resample_to and len(combined) > 0:
+        print(f"Resampling to {resample_to} cadence...")
+        combined = combined[['rate', 'error']].resample(resample_to).mean()
         combined = combined.dropna(subset=['rate'])
+        print(f"After resample: {len(combined):,} data points")
 
     return combined
 
