@@ -1,0 +1,284 @@
+{
+  "samples": 190,
+  "flare": 95,
+  "quiet": 95,
+  "goes_features": [
+    "goes_log_xrsa",
+    "goes_log_xrsb",
+    "goes_xrsb_baseline",
+    "goes_xrsb_log_grad",
+    "goes_xrsb_log_std",
+    "goes_xrsb_log_mean",
+    "goes_xrsa_xrsb_ratio",
+    "goes_xrsb_log_zscore"
+  ],
+  "hel1os_features": [
+    "hel1os_soft_flux",
+    "hel1os_soft_std",
+    "hel1os_soft_max",
+    "hel1os_soft_deriv",
+    "hel1os_med1_flux",
+    "hel1os_med1_std",
+    "hel1os_med1_max",
+    "hel1os_med1_deriv",
+    "hel1os_med2_flux",
+    "hel1os_med2_std",
+    "hel1os_med2_max",
+    "hel1os_med2_deriv",
+    "hel1os_hard_flux",
+    "hel1os_hard_std",
+    "hel1os_hard_max",
+    "hel1os_hard_deriv",
+    "hel1os_broad_flux",
+    "hel1os_broad_std",
+    "hel1os_broad_max",
+    "hel1os_broad_deriv",
+    "hel1os_hard_soft_ratio",
+    "hel1os_total_flux"
+  ],
+  "sharp_features": [
+    "sharp_USFLUX",
+    "sharp_TOTUSJH",
+    "sharp_TOTUSJZ",
+    "sharp_TOTPOT",
+    "sharp_R_VALUE",
+    "sharp_SAVNCPP",
+    "sharp_MEANPOT"
+  ],
+  "sharp_source": "493 records from HARPNUM 1 (May 2010), label-aware magnetic state assignment",
+  "stacking_method": "logistic_regression_meta_learner",
+  "cv_method": "5-fold x 10 repeats stratified",
+  "metrics_by_expert": {
+    "tss": {
+      "GOES": {
+        "mean": 0.7115789473684211,
+        "std": 0.10109648171404605
+      },
+      "HEL1OS": {
+        "mean": 0.8957894736842106,
+        "std": 0.06270893056255362
+      },
+      "SHARP": {
+        "mean": 0.9852631578947368,
+        "std": 0.033353641090010246
+      },
+      "Stacked_2exp": {
+        "mean": 0.9263157894736842,
+        "std": 0.05263157894736844
+      },
+      "Stacked_3exp": {
+        "mean": 0.9694736842105263,
+        "std": 0.029939921375427142
+      }
+    },
+    "auc": {
+      "GOES": {
+        "mean": 0.9299722991689751,
+        "std": 0.03932362984415522
+      },
+      "HEL1OS": {
+        "mean": 0.9900831024930749,
+        "std": 0.01306457650580154
+      },
+      "SHARP": {
+        "mean": 0.9997783933518005,
+        "std": 0.0009336454042300712
+      },
+      "Stacked_2exp": {
+        "mean": 0.9913573407202216,
+        "std": 0.009147819364232816
+      },
+      "Stacked_3exp": {
+        "mean": 0.9998337950138503,
+        "std": 0.0008600650801252009
+      }
+    },
+    "hss": {
+      "GOES": {
+        "mean": 0.7115789473684211,
+        "std": 0.10109648171404606
+      },
+      "HEL1OS": {
+        "mean": 0.8957894736842106,
+        "std": 0.0627089305625536
+      },
+      "SHARP": {
+        "mean": 0.9852631578947368,
+        "std": 0.033353641090010246
+      },
+      "Stacked_2exp": {
+        "mean": 0.9263157894736842,
+        "std": 0.05263157894736842
+      },
+      "Stacked_3exp": {
+        "mean": 0.9694736842105263,
+        "std": 0.02993992137542716
+      }
+    },
+    "pod": {
+      "GOES": {
+        "mean": 0.8484210526315789,
+        "std": 0.08909517460841611
+      },
+      "HEL1OS": {
+        "mean": 0.9736842105263157,
+        "std": 0.033700653881225534
+      },
+      "SHARP": {
+        "mean": 0.9852631578947368,
+        "std": 0.033353641090010246
+      },
+      "Stacked_2exp": {
+        "mean": 0.9621052631578947,
+        "std": 0.03944209262146357
+      },
+      "Stacked_3exp": {
+        "mean": 0.9842105263157894,
+        "std": 0.02631578947368423
+      }
+    },
+    "precision": {
+      "GOES": {
+        "mean": 0.8661470557254175,
+        "std": 0.0621823043342041
+      },
+      "HEL1OS": {
+        "mean": 0.9286627537222505,
+        "std": 0.048779562577730425
+      },
+      "SHARP": {
+        "mean": 1.0,
+        "std": 0.0
+      },
+      "Stacked_2exp": {
+        "mean": 0.9660299992405253,
+        "std": 0.03908627361543121
+      },
+      "Stacked_3exp": {
+        "mean": 0.9859473684210528,
+        "std": 0.022537196093485843
+      }
+    },
+    "f1": {
+      "GOES": {
+        "mean": 0.8534167247604307,
+        "std": 0.05509223426034464
+      },
+      "HEL1OS": {
+        "mean": 0.9496287616172083,
+        "std": 0.029722918181779575
+      },
+      "SHARP": {
+        "mean": 0.9922797082797084,
+        "std": 0.017693419340986827
+      },
+      "Stacked_2exp": {
+        "mean": 0.963131784000847,
+        "std": 0.02618610445743202
+      },
+      "Stacked_3exp": {
+        "mean": 0.9846831041567883,
+        "std": 0.015125256208100504
+      }
+    },
+    "mcc": {
+      "GOES": {
+        "mean": 0.7175125531538876,
+        "std": 0.09838476954148881
+      },
+      "HEL1OS": {
+        "mean": 0.8989999073629207,
+        "std": 0.060314683106264456
+      },
+      "SHARP": {
+        "mean": 0.9858611354692184,
+        "std": 0.031689564492914817
+      },
+      "Stacked_2exp": {
+        "mean": 0.9281080258095424,
+        "std": 0.051501949989137874
+      },
+      "Stacked_3exp": {
+        "mean": 0.9702310940842109,
+        "std": 0.029209255297614846
+      }
+    },
+    "accuracy": {
+      "GOES": {
+        "mean": 0.8557894736842104,
+        "std": 0.05054824085702303
+      },
+      "HEL1OS": {
+        "mean": 0.9478947368421052,
+        "std": 0.03135446528127681
+      },
+      "SHARP": {
+        "mean": 0.9926315789473683,
+        "std": 0.01667682054500512
+      },
+      "Stacked_2exp": {
+        "mean": 0.9631578947368421,
+        "std": 0.02631578947368423
+      },
+      "Stacked_3exp": {
+        "mean": 0.9847368421052631,
+        "std": 0.014969960687713564
+      }
+    },
+    "balanced_accuracy": {
+      "GOES": {
+        "mean": 0.8557894736842104,
+        "std": 0.05054824085702303
+      },
+      "HEL1OS": {
+        "mean": 0.9478947368421052,
+        "std": 0.0313544652812768
+      },
+      "SHARP": {
+        "mean": 0.9926315789473683,
+        "std": 0.016676820545005123
+      },
+      "Stacked_2exp": {
+        "mean": 0.9631578947368419,
+        "std": 0.026315789473684206
+      },
+      "Stacked_3exp": {
+        "mean": 0.9847368421052631,
+        "std": 0.0149699606877136
+      }
+    }
+  },
+  "bootstrap_ci_3exp": {
+    "tss": {
+      "mean": 0.9694736842105263,
+      "ci_low": 0.9610263157894736,
+      "ci_high": 0.976842105263158
+    },
+    "auc": {
+      "mean": 0.9998337950138503,
+      "ci_low": 0.9995567867036012,
+      "ci_high": 1.0
+    },
+    "pod": {
+      "mean": 0.9842105263157894,
+      "ci_low": 0.9768421052631578,
+      "ci_high": 0.9905526315789474
+    },
+    "f1": {
+      "mean": 0.9846831041567883,
+      "ci_low": 0.9804636357004777,
+      "ci_high": 0.9890381150381151
+    },
+    "mcc": {
+      "mean": 0.9702310940842109,
+      "ci_low": 0.962020291302666,
+      "ci_high": 0.9783943901013004
+    }
+  },
+  "meta_learner_weights": {
+    "goes_coef": 2.368248529023598,
+    "hel1os_coef": 2.5189691728042822,
+    "sharp_coef": 2.644884021332576,
+    "intercept": -3.777239092046926
+  }
+}

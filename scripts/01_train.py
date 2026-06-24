@@ -1,195 +1,174 @@
 """
-PRADHAN Training Script — XGBoost with Chronological Split
-==========================================================
-
-Trains the XGBoost model on GOES data with proper temporal validation.
-
-Usage:
-    python scripts/01_train.py
+PRADHAN Training — Optimized for Large Datasets
+================================================
+Processes GOES data year-by-year to handle 1-sec + 1-min mixed cadence.
 """
-
 import sys
 from pathlib import Path
 import json
 import numpy as np
 import pandas as pd
+import gc
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import DATA_DIR
-from src.data.reader import load_goes_parquet
+from config import GOES_PARQUET_DIR
 from src.data.features import compute_features, get_feature_names
 from src.data.labels import create_flare_labels, print_label_summary
 from src.models.forecaster import FlareForecaster
 from src.evaluation.metrics import compute_all_metrics, print_metrics_report
 
 
+def load_and_process_year(year_path: Path, feature_names: list) -> tuple:
+    """Load one year of GOES data, resample if needed, compute features."""
+    df = pd.read_parquet(year_path)
+    
+    # Rename old-format columns
+    rename_map = {}
+    if 'xrsa' in df.columns:
+        rename_map['xrsa'] = 'xrs_a_flux'
+    if 'xrsb' in df.columns:
+        rename_map['xrsb'] = 'xrs_b_flux'
+    if rename_map:
+        df = df.rename(columns=rename_map)
+    
+    # Resample 1-sec data to 5-min for efficiency (skip 1-min, too slow)
+    if len(df) > 1_000_000:
+        df = df.resample('5min').mean()
+        df = df.dropna(subset=['xrs_a_flux', 'xrs_b_flux'])
+        cadence = 300.0
+    else:
+        cadence = 60.0
+    
+    # Filter valid values
+    df = df[(df['xrs_a_flux'] > 0) & (df['xrs_b_flux'] > 0)]
+    df = df[np.isfinite(df['xrs_a_flux']) & np.isfinite(df['xrs_b_flux'])]
+    
+    if len(df) < 100:
+        return None, None, None
+    
+    # Compute features
+    soft = df['xrs_a_flux'].values
+    hard = df['xrs_b_flux'].values
+    features = compute_features(soft, hard, cadence_seconds=cadence)
+    features.index = df.index
+    
+    # Create labels
+    labels = create_flare_labels(df['xrs_b_flux'], horizon='24h', threshold_class='M')
+    
+    # Get valid rows
+    valid = ~(features[feature_names].isna().any(axis=1) | labels.isna())
+    X = features.loc[valid, feature_names].values
+    y = labels[valid].values
+    times = features.loc[valid].index
+    
+    return X, y, times
+
+
 def main():
     print("=" * 70)
-    print("PRADHAN — Flare Forecasting Model Training")
+    print("PRADHAN — XGBoost Training (Optimized)")
     print("=" * 70)
-
-    # =================================================================
-    # STEP 1: Load Data
-    # =================================================================
-    print("\n[1] Loading GOES X-ray data...")
-
-    goes_path = str(DATA_DIR / "goes")
-
-    try:
-        goes = load_goes_parquet(goes_path)
-        print(f"    Loaded {len(goes):,} records from historical data")
-    except FileNotFoundError:
-        print(f"    ERROR: GOES data not found at {goes_path}")
-        print("    Please download GOES data first.")
-        return
-
-    print(f"    Time range: {goes.index.min()} to {goes.index.max()}")
-    print(f"    Columns: {goes.columns.tolist()}")
-
-    # =================================================================
-    # STEP 2: Print Label Summary
-    # =================================================================
-    print("\n[2] Analyzing flare statistics...")
-    print_label_summary(goes['xrs_b_flux'])
-
-    # =================================================================
-    # STEP 3: Compute Features
-    # =================================================================
-    print("\n[3] Computing 19 statistical proxy features...")
-
-    soft = goes['xrs_a_flux'].values
-    hard = goes['xrs_b_flux'].values
-
-    df_features = compute_features(soft, hard, cadence_seconds=60.0)
+    
     feature_names = get_feature_names()
-
-    # Align index
-    df_features.index = goes.index
-
-    print(f"    Computed {len(feature_names)} features:")
-    for name in feature_names:
-        print(f"      - {name}")
-
-    # =================================================================
-    # STEP 4: Create Labels
-    # =================================================================
-    print("\n[4] Creating flare labels...")
-
-    flux = goes['xrs_b_flux']
-    y = create_flare_labels(flux, horizon='24h', threshold_class='M')
-
-    print(f"    Horizon: 24 hours")
-    print(f"    Threshold: M-class (>=10^-5 W/m^2)")
-    print(f"    Event rate: {y.mean():.4%}")
-    print(f"    Total events: {int(y.sum()):,}")
-
-    # =================================================================
-    # STEP 5: Prepare Data
-    # =================================================================
-    print("\n[5] Preparing training data...")
-
-    # Remove NaN/invalid rows
-    valid = ~(df_features[feature_names].isna().any(axis=1) | y.isna())
-    X_all = df_features.loc[valid, feature_names].values
-    y_all = y[valid].values
-    times_all = df_features.loc[valid].index
-
-    print(f"    Valid samples: {len(X_all):,}")
-    print(f"    Positive samples: {int(y_all.sum()):,} ({y_all.mean():.4%})")
-
-    # =================================================================
-    # STEP 6: Chronological Split
-    # =================================================================
-    print("\n[6] Creating chronological validation split...")
-    print("    CRITICAL: Training on earlier data, testing on later data")
-
-    split_idx = int(len(X_all) * 0.8)
-    X_train, X_test = X_all[:split_idx], X_all[split_idx:]
-    y_train, y_test = y_all[:split_idx], y_all[split_idx:]
-    times_train, times_test = times_all[:split_idx], times_all[split_idx:]
-
-    print(f"\n    Training set: {len(X_train):,} samples")
-    print(f"    Training period: {times_train[0]} to {times_train[-1]}")
-    print(f"    Training event rate: {y_train.mean():.4%}")
-    print(f"\n    Test set: {len(X_test):,} samples")
-    print(f"    Test period: {times_test[0]} to {times_test[-1]}")
-    print(f"    Test event rate: {y_test.mean():.4%}")
-
-    # =================================================================
-    # STEP 7: Train Model
-    # =================================================================
-    print("\n[7] Training XGBoost model...")
-
-    # Compute scale_pos_weight for class imbalance
+    print(f"Features: {len(feature_names)}")
+    
+    # Get all parquet files
+    parquet_files = sorted(GOES_PARQUET_DIR.glob("goes_*.parquet"))
+    print(f"Found {len(parquet_files)} parquet files")
+    
+    # Split: first 80% of years for training, last 20% for testing
+    n_files = len(parquet_files)
+    split_idx = int(n_files * 0.8)
+    
+    print(f"\nTraining years: {parquet_files[0].stem.split('_')[1]} to {parquet_files[split_idx-1].stem.split('_')[1]}")
+    print(f"Testing years:  {parquet_files[split_idx].stem.split('_')[1]} to {parquet_files[-1].stem.split('_')[1]}")
+    
+    # Process training years
+    print("\n[1] Processing training data...")
+    train_Xs, train_ys = [], []
+    for i, pf in enumerate(parquet_files[:split_idx]):
+        year = pf.stem.split('_')[1]
+        X, y, times = load_and_process_year(pf, feature_names)
+        if X is not None:
+            train_Xs.append(X)
+            train_ys.append(y)
+            print(f"  {year}: {len(X):,} samples, event rate={y.mean():.4%}")
+        gc.collect()
+    
+    X_train = np.concatenate(train_Xs)
+    y_train = np.concatenate(train_ys)
+    print(f"\n  Total training: {len(X_train):,} samples, event rate={y_train.mean():.4%}")
+    
+    # Process testing years
+    print("\n[2] Processing test data...")
+    test_Xs, test_ys = [], []
+    for i, pf in enumerate(parquet_files[split_idx:]):
+        year = pf.stem.split('_')[1]
+        X, y, times = load_and_process_year(pf, feature_names)
+        if X is not None:
+            test_Xs.append(X)
+            test_ys.append(y)
+            print(f"  {year}: {len(X):,} samples, event rate={y.mean():.4%}")
+        gc.collect()
+    
+    X_test = np.concatenate(test_Xs)
+    y_test = np.concatenate(test_ys)
+    print(f"\n  Total test: {len(X_test):,} samples, event rate={y_test.mean():.4%}")
+    
+    # Compute class weight
     n_neg = int((y_train == 0).sum())
     n_pos = int((y_train == 1).sum())
     spw = n_neg / max(n_pos, 1)
-    print(f"    Class imbalance ratio: {spw:.1f}x")
-
+    print(f"\n  Class imbalance: {spw:.1f}x")
+    
+    # Train model
+    print("\n[3] Training XGBoost...")
     model = FlareForecaster(scale_pos_weight=spw)
     model.fit(X_train, y_train, feature_names)
-
-    print("    Model trained successfully")
-
-    # =================================================================
-    # STEP 8: Evaluate
-    # =================================================================
-    print("\n[8] Evaluating model on test set...")
-
+    print("  Done!")
+    
+    # Evaluate
+    print("\n[4] Evaluating on test set...")
     y_pred = model.predict_proba(X_test)
     optimal_threshold = model.optimize_threshold(X_test, y_test)
-
-    print(f"    Optimal decision threshold: {optimal_threshold:.4f}")
-
+    print(f"  Optimal threshold: {optimal_threshold:.4f}")
+    
     metrics = compute_all_metrics(y_test, y_pred, optimal_threshold)
     print_metrics_report(metrics, "TEST SET RESULTS")
-
-    # =================================================================
-    # STEP 9: Ablation (Raw Flux vs All Features)
-    # =================================================================
-    print("\n[9] Ablation experiment: raw flux vs all features...")
-
+    
+    # Ablation: raw flux only
+    print("\n[5] Ablation: raw flux only...")
     raw_idx = [feature_names.index('soft'), feature_names.index('hard')]
     X_train_raw = X_train[:, raw_idx]
     X_test_raw = X_test[:, raw_idx]
-
+    
     model_raw = FlareForecaster(scale_pos_weight=spw)
     model_raw.fit(X_train_raw, y_train, ['soft', 'hard'])
     y_pred_raw = model_raw.predict_proba(X_test_raw)
     model_raw.optimize_threshold(X_test_raw, y_test)
-
     metrics_raw = compute_all_metrics(y_test, y_pred_raw, model_raw.threshold)
-
-    print(f"\n    {'Metric':<20} {'Raw Flux':>12} {'All Features':>14} {'Delta':>10}")
-    print(f"    {'-'*58}")
+    
+    print(f"\n  {'Metric':<20} {'Raw Flux':>12} {'All Features':>14} {'Delta':>10}")
+    print(f"  {'-'*58}")
     for k in ['tss', 'hss', 'auc', 'brier']:
         delta = metrics[k] - metrics_raw[k]
-        print(f"    {k:<20} {metrics_raw[k]:>12.4f} {metrics[k]:>14.4f} {delta:>+10.4f}")
-
-    # =================================================================
-    # STEP 10: Feature Importance
-    # =================================================================
-    print("\n[10] Feature importance analysis...")
-
+        print(f"  {k:<20} {metrics_raw[k]:>12.4f} {metrics[k]:>14.4f} {delta:>+10.4f}")
+    
+    # Feature importance
+    print("\n[6] Feature importance...")
     importance = model.get_feature_importance()
-    print("\n    Top 10 most important features:")
+    print("\n  Top 10:")
     for i, row in importance.head(10).iterrows():
-        print(f"      {i+1:2d}. {row['feature']:<20} {row['importance']:.4f}")
-
-    # =================================================================
-    # STEP 11: Save Model and Results
-    # =================================================================
-    print("\n[11] Saving model and results...")
-
+        print(f"    {i+1:2d}. {row['feature']:<20} {row['importance']:.4f}")
+    
+    # Save
+    print("\n[7] Saving model...")
     Path("models").mkdir(exist_ok=True)
     Path("results").mkdir(exist_ok=True)
-
-    # Save model
+    
     model.save("models/pradhan_forecaster")
-    print("    Model saved to models/pradhan_forecaster")
-
-    # Save results
+    
     results = {
         'model': 'XGBoost',
         'n_features': len(feature_names),
@@ -207,20 +186,15 @@ def main():
             'n_test': len(X_test),
             'train_event_rate': float(y_train.mean()),
             'test_event_rate': float(y_test.mean()),
-            'train_period': f"{times_train[0]} to {times_train[-1]}",
-            'test_period': f"{times_test[0]} to {times_test[-1]}",
         }
     }
-
+    
     with open("results/training_results.json", "w") as f:
         json.dump(results, f, indent=2, default=str)
-    print("    Results saved to results/training_results.json")
-
+    
     print("\n" + "=" * 70)
     print("TRAINING COMPLETE")
     print("=" * 70)
-
-    return model, metrics
 
 
 if __name__ == "__main__":

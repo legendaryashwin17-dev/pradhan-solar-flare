@@ -42,7 +42,8 @@ def run_baseline_comparison():
     
     try:
         from src.data.reader import load_goes_parquet
-        goes = load_goes_parquet("data/goes_historical")
+        from config import GOES_PARQUET_DIR
+        goes = load_goes_parquet(str(GOES_PARQUET_DIR))
     except:
         # Use smaller sample with more flares for meaningful comparison
         goes = get_sample_data(n_points=10000, include_known_flares=True)
